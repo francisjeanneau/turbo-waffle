@@ -14,7 +14,7 @@ END ENTITY;
 
 
 ARCHITECTURE RTL OF CRC IS
-  SIGNAL data_in_aug_reg  : STD_LOGIC_VECTOR(47 DOWNTO 0) := (OTHERS=>'0');
+  SIGNAL data_in_aug_reg  : STD_LOGIC_VECTOR(0 TO 47) := (OTHERS=>'0');
   -- REGISTER ------------------------------------------------------------------
   SIGNAL data_in_reg      : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS=>'0');
   SIGNAL crc_reg          : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS=>'0');
@@ -24,25 +24,32 @@ BEGIN
   data_in_aug_reg   <= data_i & x"0000";
 
   PROCESS(clk_i)
-    CONSTANT poly             : UNSIGNED(15 DOWNTO 0) := x"2F15";
+    CONSTANT poly             : UNSIGNED(15 DOWNTO 0) := x"1021";
     VARIABLE data_in_signal   : STD_LOGIC;
     VARIABLE counter_s_signal : UNSIGNED(6 DOWNTO 0);
+    VARIABLE data_in_reg_var  : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS=>'0');
   BEGIN
     IF rising_edge(clk_i) THEN
       IF rst_i = '1' THEN
         data_in_reg       <= (OTHERS=>'0');
         crc_reg           <= (OTHERS=>'0');
         counter_s_signal  := (OTHERS=>'0');
+        data_in_reg_var   := (OTHERS=>'0');
       ELSE
+        data_in_signal := data_in_aug_reg(TO_INTEGER(UNSIGNED(counter_s_signal)));
         IF data_in_reg(15) = '1' THEN
-          data_in_signal := data_in_aug_reg(0 TO 47)(TO_INTEGER(UNSIGNED(counter_s_signal)));
-          data_in_reg    <= data_in_reg(14 downto 0) & data_in_signal;
-          crc_reg        <= data_in_reg XOR STD_LOGIC_VECTOR(poly);
+          data_in_reg_var   := data_in_reg(14 downto 0) & data_in_signal;
+          data_in_reg       <= data_in_reg_var XOR STD_LOGIC_VECTOR(poly);
+          crc_reg           <= data_in_reg_var XOR STD_LOGIC_VECTOR(poly);
         ELSE
-          data_in_signal := data_in_aug_reg(TO_INTEGER(UNSIGNED(counter_s_signal)));
           data_in_reg    <= data_in_reg(14 downto 0) & data_in_signal;
+          crc_reg        <= data_in_reg(14 downto 0) & data_in_signal;
         END IF;
-        counter_s_signal := counter_s_signal + 1;
+        IF UNSIGNED(counter_s_signal) = 47 THEN
+            counter_s_signal := (OTHERS=>'0');
+        ELSE
+            counter_s_signal := counter_s_signal + 1;
+        END IF;
       END IF;
     END IF;
   END PROCESS;
