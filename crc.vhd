@@ -16,15 +16,16 @@ END ENTITY;
 
 ARCHITECTURE RTL OF CRC IS
   -- SIGNAL -------------------------------------------------------------------
-  SIGNAL data_in_aug  : STD_LOGIC_VECTOR(0 TO 47)     := (OTHERS=>'0');
-  SIGNAL crc_done_sig : STD_LOGIC                     := '0';
+  SIGNAL data_in_aug_sig  : STD_LOGIC_VECTOR(0 TO 47)     := (OTHERS=>'0');
+  SIGNAL crc_done_sig     : STD_LOGIC                     := '0';
   -- REGISTER -----------------------------------------------------------------
-  SIGNAL data_in_reg  : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS=>'0');
+  SIGNAL data_out_reg     : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS=>'0');
+  SIGNAL data_in_aug_reg  : STD_LOGIC_VECTOR(0 TO 47)     := (OTHERS=>'0');
 BEGIN
 
-  data_o      <= data_in_reg;
-  crc_done_o  <= crc_done_sig;
-  data_in_aug <= data_i & x"0000";
+  data_o          <= data_out_reg;
+  crc_done_o      <= crc_done_sig;
+  data_in_aug_sig <= data_i & x"0000";
 
   PROCESS(clk_i)
     CONSTANT poly             : UNSIGNED(15 DOWNTO 0)         := x"1021";
@@ -35,23 +36,24 @@ BEGIN
   BEGIN
     IF rising_edge(clk_i) THEN
       IF rst_i = '1' THEN
-        data_in_reg       <= (OTHERS=>'0');
+        data_out_reg      <= (OTHERS=>'0');
         crc_done_sig      <= '0';
         started_var       := '0';
         counter_s_signal  := (OTHERS=>'0');
         data_in_reg_var   := (OTHERS=>'0');
 
       ELSIF (counter_s_signal <= 47) and ((started_var = '1') or (crc_start_i = '1')) THEN
-        IF crc_start_i = '1' THEN
-          started_var   := crc_start_i;
+        IF crc_start_i = '1' and started_var = '0' THEN
+          started_var     := '1';
+          data_in_aug_reg <= data_in_aug_sig;
         END IF;
-          data_in_signal    := data_in_aug(TO_INTEGER(counter_s_signal));
+          data_in_signal    := data_in_aug_reg(TO_INTEGER(counter_s_signal));
 
-          IF data_in_reg(15) = '1' THEN
-            data_in_reg_var := data_in_reg(14 downto 0) & data_in_signal;
-            data_in_reg     <= data_in_reg_var XOR STD_LOGIC_VECTOR(poly);
+          IF data_out_reg(15) = '1' THEN
+            data_in_reg_var  := data_out_reg(14 downto 0) & data_in_signal;
+            data_out_reg     <= data_in_reg_var XOR STD_LOGIC_VECTOR(poly);
           ELSE
-            data_in_reg     <= data_in_reg(14 downto 0) & data_in_signal;
+            data_out_reg     <= data_out_reg(14 downto 0) & data_in_signal;
           END IF;
 
         IF counter_s_signal = 47 THEN
