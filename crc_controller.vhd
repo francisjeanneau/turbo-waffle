@@ -50,18 +50,21 @@ BEGIN
             END IF;
           WHEN DESERIALIZER_START =>
             deserializer_start_o <= '1';
+            crc_ctrl_fsm_state <= DESERIALIZER;
           WHEN DESERIALIZER     =>
             IF deserializer_done_i = '1' THEN
               crc_ctrl_fsm_state   <= CRC_START;
             END IF;
           WHEN CRC_START        =>
             crc_start_o <= '1';
+            crc_ctrl_fsm_state <= CRC;
           WHEN CRC              =>
             IF crc_done_i = '1' THEN
               crc_ctrl_fsm_state   <= SERIALIZER_START;
             END IF;
           WHEN SERIALIZER_START =>
             serializer_start_o <= '1';
+            crc_ctrl_fsm_state <= SERIALIZER;
           WHEN SERIALIZER       =>
             IF serializer_done_i = '1' THEN
               crc_ctrl_fsm_state   <= DONE;

@@ -59,12 +59,12 @@ PORT MAP (
 
 crc_calculation : work.crc
 PORT MAP (
-  clk_i       <=  clk_i,
-  rst_i       <=  s_internal_clear,
-  crc_start_i <=  s_crc_start,
-  done_o      <=  s_crc_done,
-  data_i      <=  s_data,
-  data_o      <=  s_crc,
+  clk_i        <=  clk_i,
+  rst_i        <=  s_internal_clear,
+  crc_start_i  <=  s_crc_start,
+  crc_done_o   <=  s_crc_done,
+  data_i       <=  s_data,
+  data_o       <=  s_crc,
 );
 
 serializer : work.serializer

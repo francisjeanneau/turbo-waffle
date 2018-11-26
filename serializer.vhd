@@ -32,16 +32,18 @@ BEGIN
         started_reg <= '0';
         counter_reg <= (OTHERS=>'0');
         done_reg      <= '0';
+        data_o <= '0';
       ELSE
         started_reg <= started_reg;
         counter_reg <= counter_reg;
         done_reg      <= done_reg;
+        data_o <= '0';
         IF start_i = '1' THEN
           started_reg <= '1';
         END IF;
         IF working = '1' THEN
           counter_reg <= counter_reg + 1;
-          done_reg      <= data_i(to_integer(counter_reg));
+          data_o      <= data_i(to_integer(counter_reg));
           IF counter_reg = to_unsigned(47, counter_reg'length) THEN
             started_reg <= '0';
             done_reg      <= '1';

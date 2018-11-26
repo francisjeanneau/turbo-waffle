@@ -18,7 +18,7 @@ ARCHITECTURE rtl OF deserializer IS
   SIGNAL working     : STD_LOGIC;
   -- REGISTER ------------------------------------------------------------------
   SIGNAL started_reg : STD_LOGIC;
-  SIGNAL counter_reg : UNSIGNED(5  DOWNTO 0);
+  SIGNAL counter_reg : UNSIGNED(4  DOWNTO 0);
   SIGNAL data_reg    : STD_LOGIC_VECTOR(31 DOWNTO 0);
   SIGNAL done_reg    : STD_LOGIC;
 BEGIN
