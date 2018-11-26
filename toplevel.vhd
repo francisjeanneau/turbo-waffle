@@ -6,9 +6,9 @@ ENTITY toplevel IS
   PORT (
     clk_i     : IN  STD_LOGIC;
     clk_x2_i  : IN  STD_LOGIC;
-    rst_i     : IN  STD_LOGIC_VECTOR;
+    rst_i     : IN  STD_LOGIC;
     start_i   : IN  STD_LOGIC;
-    data_i    : IN  STD_LOGIC_VECTOR;
+    data_i    : IN  STD_LOGIC;
     data_o    : OUT STD_LOGIC;
     done_o    : OUT STD_LOGIC
   );
@@ -32,49 +32,49 @@ BEGIN
 
 s_serializer_input_data <= s_data&s_crc;
 
-crc_controller : work.crc_controller
+crc_controller_inst : entity work.crc_controller
 PORT MAP (
-  clk_i                <=  clk_i,
-  rst_i                <=  rst_i,
-  start_i              <=  start_i,
-  clear_o              <=  s_internal_clear,
-  deserializer_start_o <=  s_deserializer_start,
-  deserializer_done_o  <=  s_deserializer_done,
-  crc_start_o          <=  s_crc_start,
-  crc_done_o           <=  s_crc_done,
-  serializer_start_o   <=  s_serializer_start,
-  serializer_done_o    <=  s_serializer_done,
-  done_o               <=  done_o
+  clk_i                =>  clk_i,
+  rst_i                =>  rst_i,
+  start_i              =>  start_i,
+  clear_o              =>  s_internal_clear,
+  deserializer_start_o =>  s_deserializer_start,
+  deserializer_done_i  =>  s_deserializer_done,
+  crc_start_o          =>  s_crc_start,
+  crc_done_i           =>  s_crc_done,
+  serializer_start_o   =>  s_serializer_start,
+  serializer_done_i    =>  s_serializer_done,
+  done_o               =>  done_o
 );
 
-deserializer : work.deserializer
+deserializer_inst : entity work.deserializer
 PORT MAP (
-  clk_i    <=  clk_i,
-  clear_i  <=  s_internal_clear,
-  start_i  <=  s_deserializer_start,
-  done_o   <=  s_deserializer_done,
-  data_i   <=  data_i,
-  data_o   <=  s_data
+  clk_i    =>  clk_i,
+  clear_i  =>  s_internal_clear,
+  start_i  =>  s_deserializer_start,
+  done_o   =>  s_deserializer_done,
+  data_i   =>  data_i,
+  data_o   =>  s_data
 );
 
-crc_calculation : work.crc
+crc_calculation_inst : entity work.crc
 PORT MAP (
-  clk_i        <=  clk_i,
-  rst_i        <=  s_internal_clear,
-  crc_start_i  <=  s_crc_start,
-  crc_done_o   <=  s_crc_done,
-  data_i       <=  s_data,
-  data_o       <=  s_crc,
+  clk_i        =>  clk_i,
+  rst_i        =>  s_internal_clear,
+  crc_start_i  =>  s_crc_start,
+  crc_done_o   =>  s_crc_done,
+  data_i       =>  s_data,
+  data_o       =>  s_crc
 );
 
-serializer : work.serializer
+serializer_inst : entity work.serializer
 PORT MAP (
-  clk_i    <=  clk_i,
-  clear_i  <=  s_internal_clear,
-  start_i  <=  s_serializer_start,
-  done_o   <=  s_serializer_done,
-  data_i   <=  s_serializer_input_data,
-  data_o   <=  data_o
+  clk_i    =>  clk_i,
+  clear_i  =>  s_internal_clear,
+  start_i  =>  s_serializer_start,
+  done_o   =>  s_serializer_done,
+  data_i   =>  s_serializer_input_data,
+  data_o   =>  data_o
 );
 
 END ARCHITECTURE;
