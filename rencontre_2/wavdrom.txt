@@ -1,0 +1,9 @@
+{signal: [
+  {name: 'clk', wave: 'hlnhlnhlnhlnhlnhlnhlnhlnhlnhlnhln'},
+  {name: 'clkx2', wave: 'n................................'},
+  {name: 'clr', wave: 'h.l..|...........................'},
+  {name: 'data_i', wave: 'x.3..|3..x|x.....................', data: ['D31', 'D0']},
+  {name: 'data_o', wave: 'x....|...x|...3...|3...3..|3..xxx', data: ['D31', 'D0', 'C15', 'C0']},
+  {name: 'done', wave: 'h..0.|........................h..'},
+  {name: 'fsm_state', wave: '3.3......4|...5...............3..', data: ['idle', 'deserializer', 'crc', 'serializer', 'idle']}
+]}

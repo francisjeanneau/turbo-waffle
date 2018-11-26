@@ -1,0 +1,11 @@
+{
+    "workbench.colorTheme": "Solarized Dark",
+    "editor.tabSize": 4,
+    "editor.wordWrap": "on",
+    "[vhdl]": {
+        "editor.wordWrap": "on",
+        "editor.tabSize": 2,
+        "editor.quickSuggestions": false
+    },
+    "editor.rulers": [80]
+}
