@@ -43,7 +43,7 @@ BEGIN
         END IF;
         IF working = '1' THEN
           counter_reg <= counter_reg + 1;
-          data_o      <= data_i(to_integer(counter_reg));
+          data_o      <= data_i(47 - to_integer(counter_reg));
           IF counter_reg = to_unsigned(47, counter_reg'length) THEN
             started_reg <= '0';
             done_reg      <= '1';

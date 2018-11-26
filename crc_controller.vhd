@@ -20,7 +20,7 @@ END ENTITY;
 
 ARCHITECTURE rtl OF crc_controller IS
 TYPE   crc_ctrl_fsm IS (IDLE, DESERIALIZER_START, DESERIALIZER, CRC_START, CRC,
-                        SERIALIZER_START, SERIALIZER, DONE);
+                        SERIALIZER_START, SERIALIZER);
 SIGNAL crc_ctrl_fsm_state : crc_ctrl_fsm := IDLE;
   -- REGISTER ------------------------------------------------------------------
 BEGIN
@@ -66,12 +66,10 @@ BEGIN
             serializer_start_o <= '1';
             crc_ctrl_fsm_state <= SERIALIZER;
           WHEN SERIALIZER       =>
-            IF serializer_done_i = '1' THEN
-              crc_ctrl_fsm_state   <= DONE;
-            END IF;
-          WHEN DONE             =>
             done_o <= '1';
-            crc_ctrl_fsm_state   <= IDLE;
+            IF serializer_done_i = '1' THEN
+              crc_ctrl_fsm_state   <= IDLE;
+            END IF;
         END CASE;
       END IF;
     END IF;
