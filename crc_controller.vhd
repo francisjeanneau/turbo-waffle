@@ -12,7 +12,7 @@ ENTITY crc_controller IS
     deserializer_done_i  : IN  STD_LOGIC;
     crc_start_o          : OUT STD_LOGIC;
     crc_done_i           : IN  STD_LOGIC;
-    serializer_start_o   : OUT STD_LOGIC;`
+    serializer_start_o   : OUT STD_LOGIC;
     serializer_done_i    : IN  STD_LOGIC;
     done_o               : OUT STD_LOGIC
   );
