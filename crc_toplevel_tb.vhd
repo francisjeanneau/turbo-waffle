@@ -8,7 +8,6 @@ USE std.textio.ALL;
 ENTITY crc_toplevel_tb IS
 END ENTITY;
 
-
 ARCHITECTURE tb OF crc_toplevel_tb IS
   FILE file_test_vectors : TEXT;
   FILE file_results : TEXT;
@@ -17,16 +16,14 @@ ARCHITECTURE tb OF crc_toplevel_tb IS
   SIGNAL clk_x2        : STD_LOGIC := '0';
   SIGNAL rst           : STD_LOGIC := '0';
   SIGNAL input_data    : STD_LOGIC_VECTOR(31 DOWNTO 0)  := (OTHERS=>'0');
-  SIGNAL output_data   : STD_LOGIC_VECTOR(47 DOWNTO 0) := (OTHERS=>'0');
 
   SIGNAL input_data_counter  : INTEGER := 0;
   SIGNAL input_data_serial   : STD_LOGIC;
-  SIGNAL output_data_counter : INTEGER := 0;
   SIGNAL output_data_serial  : STD_LOGIC;
   SIGNAL done : STD_LOGIC := '0';
   SIGNAL start : STD_LOGIC := '0';
 
-  CONSTANT clk_period : TIME := 1 pS;
+  CONSTANT clk_period : TIME := 100 NS;
 BEGIN
 
 input_data_serial <= input_data(31 - input_data_counter);
@@ -65,6 +62,8 @@ input_data_serial <= input_data(31 - input_data_counter);
     VARIABLE v_expected_output_data : STD_LOGIC_VECTOR(47 DOWNTO 0);
     VARIABLE v_space      : CHARACTER;
     VARIABLE vector_num   : INTEGER := 0;
+    VARIABLE output_data_counter : INTEGER := 0;
+    VARIABLE output_data   : STD_LOGIC_VECTOR(47 DOWNTO 0) := (OTHERS=>'0');
     
   BEGIN
     report "Starting simulation and test";
@@ -73,7 +72,7 @@ input_data_serial <= input_data(31 - input_data_counter);
     WHILE NOT endfile(file_test_vectors) LOOP
       report "Executing test vector #" & INTEGER'IMAGE(vector_num);
       input_data_counter  <= 0;
-      output_data_counter <= 0;
+      output_data_counter := 0;
       readline(file_test_vectors, v_i_line); -- Skip comment
       readline(file_test_vectors, v_i_line);
       hread(v_i_line, v_input_data);
@@ -86,24 +85,23 @@ input_data_serial <= input_data(31 - input_data_counter);
       start <= '1';
       WAIT UNTIL falling_edge(clk);
       start <= '0';
-      FOR I IN 0 TO 2000 LOOP--32 + 48/2 + 48 - 1 LOOP
+      WHILE output_data_counter <= 47 LOOP
         WAIT UNTIL falling_edge(clk);
-        IF input_data_counter /= 31 THEN
+        IF input_data_counter < 31 THEN
           input_data_counter <= input_data_counter + 1;
         END IF;
         IF done = '1' THEN
-          output_data(output_data_counter) <= output_data_serial;
-          output_data_counter <= output_data_counter + 1;
+          output_data(output_data_counter) := output_data_serial;
+          output_data_counter := output_data_counter + 1;
         END IF;
+        
       END LOOP;
       WAIT UNTIL falling_edge(clk);
-
-      output_data(output_data_counter) <= output_data_serial;
       
       readline(file_test_vectors, v_i_line);
       hread(v_i_line, v_expected_output_data);
-      --ASSERT v_expected_output_data = output_data REPORT "Expected output : " & v_expected_output_data &
-      --       " does not match output : " & output_data SEVERITY ERROR;
+      ASSERT v_expected_output_data = output_data REPORT "Expected output : " & INTEGER'image(to_integer(unsigned(v_expected_output_data))) &
+             " does not match output : " & INTEGER'image(to_integer(unsigned(output_data))) SEVERITY ERROR;
 
  
       hwrite(v_o_line, output_data);
