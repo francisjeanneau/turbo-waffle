@@ -46,7 +46,7 @@ BEGIN
         IF crc_start_i = '1' and started_var = '0' THEN
           started_var     := '1';
           data_in_aug_reg <= data_in_aug_sig;
-        END IF;
+        ELSE
           data_in_signal    := data_in_aug_reg(TO_INTEGER(counter_s_signal));
 
           IF data_out_reg(15) = '1' THEN
@@ -56,11 +56,13 @@ BEGIN
             data_out_reg     <= data_out_reg(14 downto 0) & data_in_signal;
           END IF;
 
-        IF counter_s_signal = 47 THEN
-          crc_done_sig <= '1';
+          IF counter_s_signal = 47 THEN
+            crc_done_sig <= '1';
+          END IF;
+
+          counter_s_signal := counter_s_signal + 1;
         END IF;
 
-        counter_s_signal := counter_s_signal + 1;
 
       END IF;
     END IF;

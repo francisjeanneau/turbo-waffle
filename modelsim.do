@@ -9,7 +9,7 @@ add wave *
 force -freeze sim:/crc/rst_i 1 0
 force -freeze sim:/crc/crc_start_i 0 0
 force -freeze sim:/crc/crc_start_i 1 750 ns
-force -freeze sim:/crc/data_i 32'h11111111 0
+force -freeze sim:/crc/data_i 32'hFFFFFFFF 0
 force -freeze sim:/crc/clk_i 1 0, 0 {50 ns} -r 100 ns
 run
 
