@@ -101,8 +101,9 @@ input_data_serial <= input_data(31 - input_data_counter);
       
       readline(file_test_vectors, v_i_line);
       hread(v_i_line, v_expected_output_data);
-      ASSERT v_expected_output_data = output_data REPORT "Expected output : " & INTEGER'image(to_integer(unsigned('0' & v_expected_output_data))) &
-             " does not match output : " & INTEGER'image(to_integer(unsigned('0' & output_data))) SEVERITY ERROR;
+      ASSERT v_expected_output_data = output_data REPORT "Expected output (" & to_hstring(v_expected_output_data) &
+             ") does not match output : " & to_hstring(output_data) SEVERITY ERROR;
+
 
  
       writeline(file_results, v_comment_line);
