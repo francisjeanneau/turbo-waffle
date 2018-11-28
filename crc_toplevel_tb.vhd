@@ -56,6 +56,7 @@ input_data_serial <= input_data(31 - input_data_counter);
   END PROCESS;
 
   PROCESS
+    VARIABLE v_comment_line: LINE;
     VARIABLE v_i_line      : LINE;
     VARIABLE v_o_line      : LINE;
     VARIABLE v_input_data           : STD_LOGIC_VECTOR(31 DOWNTO 0);
@@ -73,7 +74,7 @@ input_data_serial <= input_data(31 - input_data_counter);
       report "Executing test vector #" & INTEGER'IMAGE(vector_num);
       input_data_counter  <= 0;
       output_data_counter := 0;
-      readline(file_test_vectors, v_i_line); -- Skip comment
+      readline(file_test_vectors, v_comment_line);
       readline(file_test_vectors, v_i_line);
       hread(v_i_line, v_input_data);
       input_data <= v_input_data;
@@ -100,11 +101,18 @@ input_data_serial <= input_data(31 - input_data_counter);
       
       readline(file_test_vectors, v_i_line);
       hread(v_i_line, v_expected_output_data);
-      ASSERT v_expected_output_data = output_data REPORT "Expected output : " & INTEGER'image(to_integer(unsigned(v_expected_output_data))) &
-             " does not match output : " & INTEGER'image(to_integer(unsigned(output_data))) SEVERITY ERROR;
+      ASSERT v_expected_output_data = output_data REPORT "Expected output : " & INTEGER'image(to_integer(unsigned('0' & v_expected_output_data))) &
+             " does not match output : " & INTEGER'image(to_integer(unsigned('0' & output_data))) SEVERITY ERROR;
 
  
+      writeline(file_results, v_comment_line);
+      write(v_o_line, string'("Expected output: "));
+      hwrite(v_o_line, v_expected_output_data);
+      writeline(file_results, v_o_line);
+      write(v_o_line, string'("Result output:   "));
       hwrite(v_o_line, output_data);
+      -- Add a line return
+      write(v_o_line, LF);
       writeline(file_results, v_o_line);
       vector_num := vector_num + 1;
       --hwrite(my_line, std_logic_vector(to_unsigned(16,8)));
