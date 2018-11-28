@@ -10,8 +10,8 @@ vcom -work work -O0 ./crc_toplevel_tb.vhd
 
 vsim work.crc_toplevel_tb
 
-add wave *
+add wave -depth 3 *
 
-run 45000 ns
+run 60000 ns
 wave zoom full
 wave zoom range 13000 15000
