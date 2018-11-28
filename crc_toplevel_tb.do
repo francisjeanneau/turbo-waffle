@@ -12,6 +12,6 @@ vsim work.crc_toplevel_tb
 
 add wave -depth 3 *
 
-run 60000 ns
+run 75000 ns
 wave zoom full
 wave zoom range 13000 15000
