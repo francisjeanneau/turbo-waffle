@@ -16,11 +16,12 @@ END ENTITY;
 
 ARCHITECTURE RTL OF CRC IS
   -- SIGNAL -------------------------------------------------------------------
-  SIGNAL data_in_aug_sig  : STD_LOGIC_VECTOR(0 TO 47)     := (OTHERS=>'0');
+  SIGNAL data_in_aug_sig  : STD_LOGIC_VECTOR(47 DOWNTO 0) := (OTHERS=>'0');
+  SIGNAL counter_s_sig    : UNSIGNED(5 DOWNTO 0)          := (OTHERS=>'0');
   SIGNAL crc_done_sig     : STD_LOGIC                     := '0';
+  SIGNAL started_sig      : STD_LOGIC                     := '0';
   -- REGISTER -----------------------------------------------------------------
   SIGNAL data_out_reg     : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS=>'0');
-  SIGNAL data_in_aug_reg  : STD_LOGIC_VECTOR(0 TO 47)     := (OTHERS=>'0');
 BEGIN
 
   data_o          <= data_out_reg;
@@ -30,39 +31,35 @@ BEGIN
   PROCESS(clk_i)
     CONSTANT poly             : UNSIGNED(15 DOWNTO 0)         := x"1021";
     VARIABLE data_in_signal   : STD_LOGIC                     := '0';
-    VARIABLE started_var      : STD_LOGIC                     := '0';
-    VARIABLE counter_s_signal : UNSIGNED(6 DOWNTO 0)          := (OTHERS=>'0');
-    VARIABLE data_in_reg_var  : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS=>'0');
+    VARIABLE data_out_reg_var : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS=>'0');
   BEGIN
     IF rising_edge(clk_i) THEN
       IF rst_i = '1' THEN
         data_out_reg      <= (OTHERS=>'0');
         crc_done_sig      <= '0';
-        started_var       := '0';
-        counter_s_signal  := (OTHERS=>'0');
-        data_in_reg_var   := (OTHERS=>'0');
+        started_sig       <= '0';
+        counter_s_sig     <= "101111";
+        data_out_reg_var  := (OTHERS=>'0');
 
-      ELSIF (counter_s_signal <= 47) and ((started_var = '1') or (crc_start_i = '1')) THEN
-        IF crc_start_i = '1' and started_var = '0' THEN
-          started_var     := '1';
-          data_in_aug_reg <= data_in_aug_sig;
-        ELSE
-          data_in_signal    := data_in_aug_reg(TO_INTEGER(counter_s_signal));
-
-          IF data_out_reg(15) = '1' THEN
-            data_in_reg_var  := data_out_reg(14 downto 0) & data_in_signal;
-            data_out_reg     <= data_in_reg_var XOR STD_LOGIC_VECTOR(poly);
-          ELSE
-            data_out_reg     <= data_out_reg(14 downto 0) & data_in_signal;
-          END IF;
-
-          IF counter_s_signal = 47 THEN
-            crc_done_sig <= '1';
-          END IF;
-
-          counter_s_signal := counter_s_signal + 1;
+      ELSIF (crc_done_sig = '0') and ((started_sig = '1') or (crc_start_i = '1')) THEN
+        IF crc_start_i = '1' THEN
+          started_sig <= '1';
         END IF;
 
+        data_in_signal    := data_in_aug_sig(TO_INTEGER(counter_s_sig));
+
+        IF data_out_reg(15) = '1' THEN
+          data_out_reg_var := data_out_reg(14 downto 0) & data_in_signal;
+          data_out_reg     <= data_out_reg_var XOR STD_LOGIC_VECTOR(poly);
+        ELSE
+          data_out_reg     <= data_out_reg(14 downto 0) & data_in_signal;
+        END IF;
+
+        IF counter_s_sig = 0 THEN
+          crc_done_sig <= '1';
+        END IF;
+
+        counter_s_sig <= counter_s_sig - 1;
 
       END IF;
     END IF;
